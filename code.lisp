@@ -4,6 +4,7 @@
 	:split-sequence)
   (:export :*private-captcha-key*
 	   :*public-captcha-key*
+	   :*challenge-url-prefix*
 	   :challenge-js
 	   :challenge-ns
 	   :challenge
@@ -14,17 +15,18 @@
 
 (defvar *private-captcha-key* nil "Private key for the recaptcha service, register at http://recaptcha.net/api/getkey")
 (defvar *public-captcha-key* nil "Private key for the recaptcha service, register at http://recaptcha.net/api/getkey")
+(defvar *challenge-url-prefix* "http://api.recaptcha.net/" "Challenge URL prefix, you need to change this if you need https")
 (defvar *js-source* "http://api.recaptcha.net/js/recaptcha_ajax.js" "The source of the javascript file, the standard value comes from recaptcha itself and should be available in any case")
 (defvar *captcha-verify-url* "http://api-verify.recaptcha.net/verify" "This is the URL that will be used to verify the result of the captcha.  This is the one recaptcha provides")
 
 (defun challenge-js (&optional (public-key *public-captcha-key*))
   "This is the javascript-enabled version of the challenge, recaptcha advises you to use this one *and* (challenge-ns) for the normal handling of captchas"
   (format nil 
-	  "<script type=\"text/javascript\" src=\"http://api.recaptcha.net/challenge?k=~A\"></script>" public-key))
+	  "<script type=\"text/javascript\" src=\"~Achallenge?k=~A\"></script>" *challenge-url-prefix* public-key))
 (defun challenge-ns (&optional (public-key *public-captcha-key*))
   "This is the javascript-disabled version of the challenge, recaptcha advises you to use this one *and* (challenge-js) for the normal handling of captchas"
   (format nil
-	  "<noscript><iframe src=\"http://api.recaptcha.net/noscript?k=~A\" height=\"300\" width=\"500\" frameborder=\"0\"></iframe><br><textarea name=\"recaptcha_challenge_field\" rows=\"3\" cols=\"40\"></textarea><input type=\"hidden\" name=\"recaptcha_response_field\" value=\"manual_challenge\"></noscript>" public-key))
+	  "<noscript><iframe src=\"~Anoscript?k=~A\" height=\"300\" width=\"500\" frameborder=\"0\"></iframe><br><textarea name=\"recaptcha_challenge_field\" rows=\"3\" cols=\"40\"></textarea><input type=\"hidden\" name=\"recaptcha_response_field\" value=\"manual_challenge\"></noscript>" *challenge-url-prefix* public-key))
 (defun challenge-ajax-src ()
   "This is for the ajaxified version of recaptcha.  Please look at the api for more information on how to use this.  http://recaptcha.net/apidocs/captcha/client.html"
   (format nil
